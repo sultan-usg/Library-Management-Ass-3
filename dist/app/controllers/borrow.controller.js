@@ -8,12 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.borrowRoutes = void 0;
-const express_1 = require("express");
+const express_1 = __importDefault(require("express"));
 const borrow_model_1 = require("../models/borrow.model");
 const book_model_1 = require("../models/book.model");
-exports.borrowRoutes = (0, express_1.Router)();
+exports.borrowRoutes = express_1.default.Router();
 exports.borrowRoutes.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { book: bookId, quantity, dueDate } = req.body;
