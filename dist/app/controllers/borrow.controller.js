@@ -21,21 +21,38 @@ exports.borrowRoutes.post('/', (req, res) => __awaiter(void 0, void 0, void 0, f
     try {
         const { book: bookId, quantity, dueDate } = req.body;
         const book = yield book_model_1.Book.findById(bookId);
-        if (!book || book.copies < quantity) {
-            return res.status(400).json({
+        if (!book) {
+            res.status(404).json({
+                success: false,
+                message: 'Book not found',
+                error: 'Invalid book ID'
+            });
+        }
+        else if (book.copies < quantity) {
+            res.status(400).json({
                 success: false,
                 message: 'Not enough copies available',
                 error: 'Insufficient stock'
             });
         }
-        book.copies -= quantity;
-        book.available = book.copies > 0;
-        yield book.save();
-        const borrow = yield borrow_model_1.Borrow.create({ book: bookId, quantity, dueDate });
-        res.status(201).json({ success: true, message: 'Book borrowed successfully', data: borrow });
+        else {
+            book.copies -= quantity;
+            book.available = book.copies > 0;
+            yield book.save();
+            const borrow = yield borrow_model_1.Borrow.create({ book: book._id, quantity, dueDate });
+            res.status(201).json({
+                success: true,
+                message: 'Book borrowed successfully',
+                data: borrow
+            });
+        }
     }
     catch (error) {
-        res.status(400).json({ success: false, message: 'Borrow failed', error });
+        res.status(400).json({
+            success: false,
+            message: 'Borrow failed',
+            error
+        });
     }
 }));
 exports.borrowRoutes.get('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
