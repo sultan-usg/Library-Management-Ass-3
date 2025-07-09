@@ -174,11 +174,6 @@ Returns total quantity borrowed per book:
 
 ---
 
-## 📄 License
-
-MIT License
-
----
 
 ## 🙌 Author
 
