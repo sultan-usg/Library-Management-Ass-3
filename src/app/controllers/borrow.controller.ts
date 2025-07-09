@@ -9,24 +9,40 @@ borrowRoutes.post('/', async (req: Request, res: Response) => {
     const { book: bookId, quantity, dueDate } = req.body;
     const book = await Book.findById(bookId);
 
-    if (!book || book.copies < quantity) {
-      return res.status(400).json({
+    if (!book) {
+      res.status(404).json({
+        success: false,
+        message: 'Book not found',
+        error: 'Invalid book ID'
+      });
+    } else if (book.copies < quantity) {
+      res.status(400).json({
         success: false,
         message: 'Not enough copies available',
         error: 'Insufficient stock'
       });
+    } else {
+      book.copies -= quantity;
+      book.available = book.copies > 0;
+      await book.save();
+
+      const borrow = await Borrow.create({ book: book._id, quantity, dueDate });
+
+      res.status(201).json({
+        success: true,
+        message: 'Book borrowed successfully',
+        data: borrow
+      });
     }
-
-    book.copies -= quantity;
-    book.available = book.copies > 0;
-    await book.save();
-
-    const borrow = await Borrow.create({ book: bookId, quantity, dueDate });
-    res.status(201).json({ success: true, message: 'Book borrowed successfully', data: borrow });
   } catch (error) {
-    res.status(400).json({ success: false, message: 'Borrow failed', error });
+    res.status(400).json({
+      success: false,
+      message: 'Borrow failed',
+      error
+    });
   }
 });
+
 
 borrowRoutes.get('/', async (req: Request, res: Response) => {
   const summary = await Borrow.aggregate([
